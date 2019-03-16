@@ -4,28 +4,28 @@ public class Problem {
 
     private int problemId;
     private String type;
-    private float longitude;
-    private float latitude;
+    private double longitude;
+    private double latitude;
 
-    public Problem(int problemId, String type, float longitude, float latitude){
+    public Problem(int problemId, String type, double longitude, double latitude){
         this.problemId = problemId;
         this.type = type;
         this.longitude = longitude;
-        this.latitude = longitude;
+        this.latitude = latitude;
     }
-    public float getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(float latitude) {
+    public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
 
-    public float getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(float longitude) {
+    public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
 

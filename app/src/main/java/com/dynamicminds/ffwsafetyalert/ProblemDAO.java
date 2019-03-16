@@ -36,13 +36,18 @@ public class ProblemDAO extends SQLiteOpenHelper {
 
             problemList.add(new Problem(res.getInt(res.getColumnIndex("id")),
                     res.getString(res.getColumnIndex("type")),
-                    res.getFloat(res.getColumnIndex("longitude")),
-                    res.getFloat(res.getColumnIndex("latitude"))
+                    res.getDouble(res.getColumnIndex("longitude")),
+                    res.getDouble(res.getColumnIndex("latitude"))
             ));
 
             res.moveToNext();
         }
         return problemList;
+    }
+
+    public void deleteAll(){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete("problem", null, null);
     }
 
     public boolean setTableData(ArrayList<Problem> problemList){
@@ -53,8 +58,8 @@ public class ProblemDAO extends SQLiteOpenHelper {
 
             contentValues.put("id", problem.getProblemId());
             contentValues.put("type", problem.getType());
-            contentValues.put("latitude", problem.getLatitude());
             contentValues.put("longitude", problem.getLongitude());
+            contentValues.put("latitude", problem.getLatitude());
 
             db.insert("problem", null, contentValues);
         }

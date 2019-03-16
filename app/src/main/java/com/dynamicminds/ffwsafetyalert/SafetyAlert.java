@@ -1,5 +1,6 @@
 package com.dynamicminds.ffwsafetyalert;
 
+import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -7,31 +8,49 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.IBinder;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class SafetyAlert extends Service implements TextToSpeech.OnInitListener {
-    public int counter=0;
+import javax.net.ssl.HttpsURLConnection;
+
+import static com.android.volley.Request.Method.POST;
+
+public class SafetyAlert extends Service {
+    public int counter = 0;
     Context context = null;
     Speaker speaker;
-    private String str;
-    private TextToSpeech mTts;
-    private static final String TAG="TTSService";
 
     public SafetyAlert(Context context) {
         super();
         this.context = context;
     }
 
-    public SafetyAlert(){
+    public SafetyAlert() {
     }
 
     @Nullable
@@ -40,23 +59,16 @@ public class SafetyAlert extends Service implements TextToSpeech.OnInitListener 
         // TODO: Return the communication channel to the service.
         throw new UnsupportedOperationException("Not yet implemented");
     }
+
     @Override
-    public void onCreate(){
-        mTts = new TextToSpeech(this,
-                this  // OnInitListener
-        );
-        mTts.setSpeechRate(0.9f);
-        Log.v(TAG, "oncreate_service");
-        str ="Please be alert that you are approaching hijacking hotspot area";
+    public void onCreate() {
+        context = this;
+        getData();
         super.onCreate();
     }
     @Override
     public void onStart(Intent intent, int startId) {
 
-
-        sayHello(str);
-
-        Log.v(TAG, "onstart_service");
         super.onStart(intent, startId);
     }
 
@@ -69,10 +81,6 @@ public class SafetyAlert extends Service implements TextToSpeech.OnInitListener 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mTts != null) {
-            mTts.stop();
-            mTts.shutdown();
-        }
         Intent broadcastIntent = new Intent(this, RestartBroadcasterReceiver.class);
 
         sendBroadcast(broadcastIntent);
@@ -82,73 +90,48 @@ public class SafetyAlert extends Service implements TextToSpeech.OnInitListener 
     private TimerTask timerTask;
     long oldTime=0;
     public void startTimer() {
-        //set a new Timer
         timer = new Timer();
-
-        //initialize the TimerTask's job
         initializeTimerTask();
-
-        //schedule the timer, to wake up every 1 second
-        timer.schedule(timerTask, 1000, 1000); //
+        timer.schedule(timerTask, 01, 1000*60*60*24);
     }
 
     public void initializeTimerTask() {
         timerTask = new TimerTask() {
             public void run() {
-                NotificationManager notificationManager;
 
-                NotificationCompat.Builder builder =
-                        new NotificationCompat.Builder(getApplicationContext(), "notify_001");
-                Intent ii = new Intent(getApplicationContext(), MainActivity.class);
-                PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, ii, 0);
-
-                NotificationCompat.BigTextStyle bigText = new NotificationCompat.BigTextStyle();
-
-                builder.setContentIntent(pendingIntent);
-                builder.setSmallIcon(R.drawable.icon);
-                builder.setContentTitle("Alert");
-                builder.setContentText("Please be alert that you are approaching hijacking hotspot area");
-                builder.setPriority(Notification.PRIORITY_MAX);
-                builder.setStyle(bigText);
-
-                notificationManager =
-                        (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    String channelId = "YOUR_CHANNEL_ID";
-                    NotificationChannel channel = new NotificationChannel(channelId,
-                            "Channel human readable title",
-                            NotificationManager.IMPORTANCE_DEFAULT);
-                    notificationManager.createNotificationChannel(channel);
-                    builder.setChannelId(channelId);
-                }
-
-                notificationManager.notify(0, builder.build());
-
+                getData();
             }
         };
     }
 
-    @Override
-    public void onInit(int status) {
-        Log.v(TAG, "oninit");
-        if (status == TextToSpeech.SUCCESS) {
-            int result = mTts.setLanguage(Locale.US);
-            if (result == TextToSpeech.LANG_MISSING_DATA ||
-                    result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                Log.v(TAG, "Language is not available.");
-            } else {
-
-                sayHello(str);
-
+    private void getData() {
+        JsonArrayRequest data = new JsonArrayRequest("http://www.effregapp.org/api/problem", new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                ArrayList<Problem> pL = new ArrayList<>();
+                System.out.printf("Error Volley: mORE\n");
+                try {
+                    for (int x = 0; x < response.length(); x++) {
+                        JSONObject obj = response.getJSONObject(x);
+                        Problem p = new Problem(obj.getInt("problem_id"), obj.getString("type"),
+                                obj.getDouble("longitude"), obj.getDouble("latitude"));
+                        pL.add(p);
+                        System.out.println(p.getLongitude());
+                    }
+                    ProblemDAO problemDAO = new ProblemDAO(context);
+                    problemDAO.deleteAll();
+                    problemDAO.setTableData(pL);
+                } catch (Exception ex) {
+                    System.out.printf("Error: %s\n", ex.getMessage());
+                }
             }
-        } else {
-            Log.v(TAG, "Could not initialize TextToSpeech.");
-        }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                System.out.printf("Error Volley: %s\n", error.getMessage());
+            }
+        });
+        VolleyInstance.getInstance(context).addToRequestQueue(data);
     }
-    private void sayHello(String str) {
-        mTts.speak(str,
-                TextToSpeech.QUEUE_FLUSH,
-                null);
-    }
+
 }

@@ -24,10 +24,6 @@ public class LocationMonitor implements LocationListener {
         MainActivity.LATITUDE = location.getLatitude();
         MainActivity.LONGITUDE = location.getLongitude();
 
-        Log.d("Location: ", location.getLatitude() + ", " + location.getLongitude());
-
-        //MainActivity.mTextMessage.setText("Lat: " + location.getLatitude() + " Long: " + location.getLongitude());
-        Toast.makeText(context, location.getLatitude() + " | - | " + location.getLongitude(), Toast.LENGTH_LONG).show();
     }
 
     @Override

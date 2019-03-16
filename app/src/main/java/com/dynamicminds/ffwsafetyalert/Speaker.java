@@ -1,57 +1,54 @@
 package com.dynamicminds.ffwsafetyalert;
 
+import android.app.Service;
 import android.content.Context;
+import android.content.Intent;
 import android.media.AudioManager;
+import android.os.IBinder;
 import android.speech.tts.TextToSpeech;
+import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Locale;
 
-public class Speaker implements TextToSpeech.OnInitListener{
-    private TextToSpeech tts;
-    private boolean allowed = false;
-    private boolean ready = false;
+public class Speaker extends Service implements TextToSpeech.OnInitListener{
 
-    public Speaker(Context context){
-        this.tts = new TextToSpeech(context, this);
+    public static TextToSpeech mTts;
+
+    public Speaker(){
+    }
+
+    @Override
+    public void onCreate(){
+        mTts = new TextToSpeech(this, this);
+        super.onCreate();
+    }
+    @Override
+    public void onStart(Intent intent, int startId){
+
+        super.onStart(intent, startId);
     }
     @Override
     public void onInit(int status) {
-        if(status == TextToSpeech.SUCCESS){
-            // Change this to match your
-            // locale
-            tts.setLanguage(Locale.US);
-            ready = true;
-        }else{
-            ready = false;
+
+        if (status == TextToSpeech.SUCCESS) {
+            int result = mTts.setLanguage(Locale.US);
+            if (result == TextToSpeech.LANG_MISSING_DATA ||
+                    result == TextToSpeech.LANG_NOT_SUPPORTED) {
+            } else {
+                mTts.setSpeechRate(0.92f);
+            }
+        } else {
         }
     }
 
-    public void speak(String text){
-
-        // Speak only if the TTS is ready
-        // and the user has allowed speech
-
-        if(ready && allowed) {
-            HashMap<String, String> hash = new HashMap<String,String>();
-            hash.put(TextToSpeech.Engine.KEY_PARAM_STREAM,
-                    String.valueOf(AudioManager.STREAM_NOTIFICATION));
-            tts.speak(text, TextToSpeech.QUEUE_ADD, hash);
-        }
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
-    public void pause(int duration){
-        tts.playSilence(duration, TextToSpeech.QUEUE_ADD, null);
-    }
-    // Free up resources
-    public void destroy(){
-        tts.shutdown();
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
     }
 
-    public boolean isAllowed() {
-        return allowed;
-    }
-
-    public void setAllowed(boolean allowed) {
-        this.allowed = allowed;
-    }
 }

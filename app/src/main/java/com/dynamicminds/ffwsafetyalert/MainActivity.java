@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == CHECK_CODE){
             if(resultCode == TextToSpeech.Engine.CHECK_VOICE_DATA_PASS){
-                speaker = new Speaker(this);
+
             }else {
                 Intent install = new Intent();
                 install.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
         homeFragment = new HomeFragment();
         articleFragment = new ArticleFragment();
         notificationFragment = new NotificationFragment();
-
+        setFragment(homeFragment);
 
         mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
@@ -153,30 +153,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         ctx = this;
-        problemDAO = new ProblemDAO(this);
-
-        ArrayList<Problem> problemList = new ArrayList<Problem>();
-        problemList.add(new Problem(1, "hijakingspot", 343,433));
-        problemList.add(new Problem(2, "hijackingspot", 2323, 454));
-        problemList.add(new Problem(3, "hijakingspot", 2323,3443));
-
-        //problemDAO.setTableData(problemList);
-
-        ArrayList<Problem> test = problemDAO.getAll();
-        String t = "";
-
-        for (Problem p: test
-             ) {
-            t += p.getLatitude() + " - " + p.getLongitude() + ", ";
-        }
-
-        Toast.makeText(this, t, Toast.LENGTH_LONG).show();
-
         safetyAlert = new SafetyAlert(getCtx());
 
         mServiceIntent = new Intent(getCtx(), safetyAlert.getClass());
         if (!isMyServiceRunning(safetyAlert.getClass())) {
-            //startService(mServiceIntent);
+            startService(mServiceIntent);
         }
 
     }
@@ -196,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        //stopService(mServiceIntent);
+        stopService(mServiceIntent);
         super.onDestroy();
 
     }
@@ -216,12 +197,8 @@ public class MainActivity extends AppCompatActivity {
             }, 2);
             return;
         }
-
-        Log.d("Location -> ", this.LATITUDE + " | " + this.LONGITUDE);
-
         IntentFilter filter = new IntentFilter("ProximityIntentReceiver");
         registerReceiver(new ProximityIntentReceiver(), filter);
-
 
         locationManager.addProximityAlert(latitude, longitude, 10, -1, pendingIntent);
     }
@@ -230,28 +207,5 @@ public class MainActivity extends AppCompatActivity {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.main_frame, fragment);
         fragmentTransaction.commit();
-    }
-
-    private void getArticles() {
-        String url = "https://jsonplaceholder.typicode.com/todos/1";
-
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        Log.d("Response: ", response.toString());
-                        //objectResults = response;
-                    }
-                }, new Response.ErrorListener() {
-
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        objectResults = new JSONObject();
-                    }
-                });
-
-
-        VolleyInstance.getInstance(ctx).addToRequestQueue(jsonObjectRequest);
     }
 }
