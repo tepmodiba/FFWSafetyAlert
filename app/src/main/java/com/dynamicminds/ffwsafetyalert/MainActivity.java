@@ -82,26 +82,7 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.navigation_dashboard:
                     //mTextMessage.setText(R.string.title_dashboard);
                     setFragment(articleFragment);
-                    String url = "https://jsonplaceholder.typicode.com/todos/1";
-
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        Log.d("Response: ", response.toString());
-                        objectResults = response;
-                    }
-                }, new Response.ErrorListener() {
-
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        objectResults = new JSONObject();
-                    }
-                });
-
-
-                VolleyInstance.getInstance(ctx).addToRequestQueue(jsonObjectRequest);
+                    //getArticles();
 
                     return true;
                 case R.id.navigation_notifications:
@@ -249,5 +230,28 @@ public class MainActivity extends AppCompatActivity {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.main_frame, fragment);
         fragmentTransaction.commit();
+    }
+
+    private void getArticles() {
+        String url = "https://jsonplaceholder.typicode.com/todos/1";
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.d("Response: ", response.toString());
+                        //objectResults = response;
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        objectResults = new JSONObject();
+                    }
+                });
+
+
+        VolleyInstance.getInstance(ctx).addToRequestQueue(jsonObjectRequest);
     }
 }

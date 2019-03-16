@@ -1,22 +1,9 @@
 package com.dynamicminds.ffwsafetyalert;
 
-public class Article {
+public class Notification {
     private int id;
     private String title;
-    private String image;
     private String body;
-
-
-    public Article() {
-
-    }
-
-    public Article(int id, String title, String image, String body) {
-        this.id = id;
-        this.title = title;
-        this.image = image;
-        this.body = body;
-    }
 
     public int getId() {
         return id;
@@ -32,14 +19,6 @@ public class Article {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
     }
 
     public String getBody() {
