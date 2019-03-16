@@ -178,14 +178,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void addProximityAlert(double latitude, double longitude, int ID) {
-        //float radius = 100f;
-
-        // Expiration is 10 Minutes (10mins * 60secs * 1000milliSecs)
-        //long expiration = 600000;
 
         Intent intent = new Intent("ProximityIntentReceiver");
-        //intent.putExtra("Prox Alert ID", ID);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 1, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION
             }, 2);
@@ -193,8 +189,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Log.d("Location -> ", this.LATITUDE + " | " + this.LONGITUDE);
-
-
 
         IntentFilter filter = new IntentFilter("ProximityIntentReceiver");
         registerReceiver(new ProximityIntentReceiver(), filter);
