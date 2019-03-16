@@ -34,7 +34,7 @@
         </activity>
         <receiver android:name=".ProximityIntentReceiver" >
             <intent-filter>
-                <action android:name="com.dynamicminds.ffwsafetyalert.ProximityIntentReceiver" />
+                <action android:name="ProximityIntentReceiver" />
             </intent-filter>
         </receiver>
     </application>

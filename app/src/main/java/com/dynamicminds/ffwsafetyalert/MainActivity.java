@@ -8,6 +8,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.media.AudioManager;
@@ -26,13 +27,14 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
     public static double LONGITUDE = 0;
     public static double LATITUDE = 0;
-    private TextView mTextMessage;
+    public static TextView mTextMessage;
     private ProblemDAO problemDAO;
     Intent mServiceIntent;
     private SafetyAlert safetyAlert;
@@ -106,8 +108,22 @@ public class MainActivity extends AppCompatActivity {
 
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, new LocationMonitor(this));
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, new LocationMonitor(this));
-        addProximityAlert(-25.9798474, 28.0151984, 1
-        );
+
+        List<Coords> coordsList = new ArrayList();
+        coordsList.add(new Coords(-25.9793201,28.013278));
+        coordsList.add(new Coords(-25.979822, 28.014659));
+        coordsList.add(new Coords(-25.979407, 28.013908));
+        coordsList.add(new Coords(-25.979658, 28.013554));
+        coordsList.add(new Coords(-25.979754, 28.013618));
+        coordsList.add(new Coords(-25.979417, 28.013897));
+        coordsList.add(new Coords(-25.979388, 28.014176));
+
+        for(Coords coord: coordsList) {
+            Log.d("Coords Addeed: ", coord.Latitude + ", " + coord.Longitude);
+            addProximityAlert(coord.Latitude, coord.Longitude, 1
+            );
+        }
+
 
         ctx = this;
         problemDAO = new ProblemDAO(this);
@@ -133,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
 
         mServiceIntent = new Intent(getCtx(), safetyAlert.getClass());
         if (!isMyServiceRunning(safetyAlert.getClass())) {
-            startService(mServiceIntent);
+            //startService(mServiceIntent);
         }
     }
     public Context getCtx() {
@@ -151,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        stopService(mServiceIntent);
+        //stopService(mServiceIntent);
         super.onDestroy();
 
     }
@@ -167,24 +183,23 @@ public class MainActivity extends AppCompatActivity {
         // Expiration is 10 Minutes (10mins * 60secs * 1000milliSecs)
         //long expiration = 600000;
 
-        Intent intent = new Intent("com.dynamicminds.ffwsafety.ACTION_PROXIMITY_ALERT");
+        Intent intent = new Intent("ProximityIntentReceiver");
         //intent.putExtra("Prox Alert ID", ID);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 1, intent, PendingIntent.FLAG_CANCEL_CURRENT);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            // for ActivityCompat#requestPermissions for more details.
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION
             }, 2);
             return;
         }
 
         Log.d("Location -> ", this.LATITUDE + " | " + this.LONGITUDE);
-        locationManager.addProximityAlert(this.LATITUDE, this.LONGITUDE, 1, 600000, pendingIntent);
+
+
+
+        IntentFilter filter = new IntentFilter("ProximityIntentReceiver");
+        registerReceiver(new ProximityIntentReceiver(), filter);
+
+
+        locationManager.addProximityAlert(latitude, longitude, 2, 6000, pendingIntent);
     }
 }
