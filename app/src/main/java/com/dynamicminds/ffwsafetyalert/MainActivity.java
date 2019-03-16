@@ -16,12 +16,21 @@ import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.AttributeSet;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,6 +60,12 @@ public class MainActivity extends AppCompatActivity {
     private final int SHORT_DURATION = 1200;
     public LocationManager locationManager;
 
+
+    private FrameLayout frameLayout;
+    private HomeFragment homeFragment;
+    private ArticleFragment articleFragment;
+    private NotificationFragment notificationFragment;
+
     public JSONObject objectResults;
     private Speaker speaker;
 
@@ -61,11 +76,12 @@ public class MainActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    mTextMessage.setText(R.string.title_home);
+                    //mTextMessage.setText(R.string.title_home);
+                    setFragment(homeFragment);
                     return true;
                 case R.id.navigation_dashboard:
-                    mTextMessage.setText(R.string.title_dashboard);
-
+                    //mTextMessage.setText(R.string.title_dashboard);
+                    setFragment(articleFragment);
                     String url = "https://jsonplaceholder.typicode.com/todos/1";
 
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
@@ -89,7 +105,8 @@ public class MainActivity extends AppCompatActivity {
 
                     return true;
                 case R.id.navigation_notifications:
-                    mTextMessage.setText(R.string.title_notifications);
+                    //mTextMessage.setText(R.string.title_notifications);
+                    setFragment(notificationFragment);
                     return true;
             }
             return false;
@@ -114,6 +131,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        frameLayout = (FrameLayout) findViewById(R.id.main_frame);
+
+        homeFragment = new HomeFragment();
+        articleFragment = new ArticleFragment();
+        notificationFragment = new NotificationFragment();
+
 
         mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
@@ -176,6 +200,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
     public Context getCtx() {
         return ctx;
     }
@@ -219,5 +244,11 @@ public class MainActivity extends AppCompatActivity {
 
 
         locationManager.addProximityAlert(latitude, longitude, 10, -1, pendingIntent);
+    }
+
+    private void setFragment(Fragment fragment) {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.main_frame, fragment);
+        fragmentTransaction.commit();
     }
 }
