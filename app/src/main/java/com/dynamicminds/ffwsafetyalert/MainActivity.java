@@ -65,6 +65,28 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 case R.id.navigation_dashboard:
                     mTextMessage.setText(R.string.title_dashboard);
+
+                    String url = "https://jsonplaceholder.typicode.com/todos/1";
+
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.d("Response: ", response.toString());
+                        objectResults = response;
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        objectResults = new JSONObject();
+                    }
+                });
+
+
+                VolleyInstance.getInstance(ctx).addToRequestQueue(jsonObjectRequest);
+
                     return true;
                 case R.id.navigation_notifications:
                     mTextMessage.setText(R.string.title_notifications);
@@ -117,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
         coordsList.add(new Coords(-25.979754, 28.013618));
         coordsList.add(new Coords(-25.979417, 28.013897));
         coordsList.add(new Coords(-25.979388, 28.014176));
+        coordsList.add(new Coords(-25.980000799915647, 28.013583499909046));
 
         for(Coords coord: coordsList) {
             Log.d("Coords Addeed: ", coord.Latitude + ", " + coord.Longitude);
@@ -152,26 +175,6 @@ public class MainActivity extends AppCompatActivity {
             //startService(mServiceIntent);
         }
 
-        /*String url = "https://jsonplaceholder.typicode.com/todos/1";
-
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        Log.d("Response: ", response.toString());
-                        objectResults = response;
-                    }
-                }, new Response.ErrorListener() {
-
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        objectResults = new JSONObject();
-                    }
-                });
-
-
-        VolleyInstance.getInstance(ctx).addToRequestQueue(jsonObjectRequest);*/
     }
     public Context getCtx() {
         return ctx;
@@ -215,6 +218,6 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(new ProximityIntentReceiver(), filter);
 
 
-        locationManager.addProximityAlert(latitude, longitude, 2, 6000, pendingIntent);
+        locationManager.addProximityAlert(latitude, longitude, 10, -1, pendingIntent);
     }
 }
