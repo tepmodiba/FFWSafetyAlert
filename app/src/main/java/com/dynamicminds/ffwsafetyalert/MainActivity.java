@@ -171,7 +171,6 @@ public class MainActivity extends AppCompatActivity {
             );
         }
 
-
         ctx = this;
         problemDAO = new ProblemDAO(this);
 
