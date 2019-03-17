@@ -10,7 +10,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -30,6 +32,7 @@ public class ArticleFragment extends Fragment {
     private List<Article> articles;
     private RecyclerView recyclerView;
     private Context context;
+    private ProgressBar progressBar;
 
     public ArticleFragment() {
     }
@@ -41,6 +44,7 @@ public class ArticleFragment extends Fragment {
         context = getContext();
         articles = new ArrayList<>();
         recyclerView = view.findViewById(R.id.articles_list);
+        progressBar = view.findViewById(R.id.articles_progress);
 
         jsonRequest();
 
@@ -48,6 +52,9 @@ public class ArticleFragment extends Fragment {
     }
 
     private void jsonRequest() {
+
+        progressBar.setVisibility(View.VISIBLE);
+
         jsonArrayRequest = new JsonArrayRequest(URL, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
@@ -61,7 +68,7 @@ public class ArticleFragment extends Fragment {
                         Article article = new Article();
                         article.setId(jsonObject.getInt("article_id"));
                         article.setTitle(jsonObject.getString("title"));
-                        article.setBody(jsonObject.getString("body"));
+                        article.setBody(jsonObject.getString("excerpt"));
                         article.setImage(jsonObject.getString("image"));
 
                         articles.add(article);
@@ -70,15 +77,19 @@ public class ArticleFragment extends Fragment {
 
                     } catch (JSONException ex) {
                         ex.printStackTrace();
+                        Toast.makeText(context, "Oops!", Toast.LENGTH_SHORT).show();
                     }
                 }
 
                 setUpRecyclerView(articles);
+                progressBar.setVisibility(View.INVISIBLE);
             }
 
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                Toast.makeText(context, "Error loading", Toast.LENGTH_SHORT).show();
+                progressBar.setVisibility(View.INVISIBLE);
 
             }
         });

@@ -50,7 +50,7 @@ public class ArticlesRecyclerViewAdapter extends RecyclerView.Adapter<ArticlesRe
         recyclerViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, "Clicked" + id , Toast.LENGTH_SHORT).show();
+                //Toast.makeText(context, "Clicked" + id , Toast.LENGTH_SHORT).show();
                 context.startActivity(new Intent(context, ArticleDetails.class).putExtra("id", id));
             }
         });
