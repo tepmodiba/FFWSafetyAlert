@@ -82,9 +82,9 @@ public class MainActivity extends AppCompatActivity {
                     setFragment(articleFragment);
 
                     return true;
-                case R.id.navigation_notifications:
+                /*case R.id.navigation_notifications:
                     setFragment(notificationFragment);
-                    return true;
+                    return true;*/
             }
             return false;
         }
@@ -196,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter("ProximityIntentReceiver");
         registerReceiver(new ProximityIntentReceiver(), filter);
 
-        locationManager.addProximityAlert(latitude, longitude, 10, -1, pendingIntent);
+        locationManager.addProximityAlert(latitude, longitude, 5, -1, pendingIntent);
     }
 
     private void setFragment(Fragment fragment) {

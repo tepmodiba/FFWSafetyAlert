@@ -44,7 +44,7 @@ public class ProximityIntentReceiver extends BroadcastReceiver {
 
             if(tts != null) {
                 if(!tts.isSpeaking())
-                    tts.speak("You are safely driving away from hotspot area", TextToSpeech.QUEUE_FLUSH, null);
+                    tts.speak("You are safely, driving away from hotspot area", TextToSpeech.QUEUE_FLUSH, null);
             }
         }
     }
