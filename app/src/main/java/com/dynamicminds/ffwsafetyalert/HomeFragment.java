@@ -94,8 +94,8 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
             options.title(p.getType());
 
 
-            options.icon(bitmapDescriptorFromVector(getActivity(), R.drawable.warning));
-            googleMap.addMarker(options);
+           // options.icon(bitmapDescriptorFromVector(getActivity(), R.drawable.warning));
+            //googleMap.addMarker(options);
         }
     }
 
